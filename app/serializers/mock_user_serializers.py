@@ -32,7 +32,7 @@ def user_info_envelope(user_info_dict) -> dict:
         "middle_name": user_info_dict.get("middle_name", ""),
         "sex": user_info_dict.get("sex", ""),
         "phone": user_info_dict.get("user_phone", ""),
-        "points": [],
+        "points": user_info_dict.get("points", []),
         "email": user_info_dict.get("email", ""),
         "birth_date": user_info_dict.get("birth_date", ""),
         "id": str(user_info_dict.get("_id", "")),
@@ -45,7 +45,7 @@ def user_info_envelope(user_info_dict) -> dict:
 
     if user_info_dict.get("history", None):
         result["history"] = [
-            history_envelope(hr) for hr in user_info_dict.get("history", "")
+            history_envelope(hr) for hr in user_info_dict.get("history", [])
         ]
 
     if user_info_dict.get("subscriptions", None):
