@@ -6,7 +6,6 @@ from fastapi import APIRouter, Query
 
 from app.database import Credentials
 from app.schemas.token import TokenBaseSchema
-from app.serializers.mock_login import login_ok_envelope
 
 router = APIRouter()
 
@@ -55,4 +54,4 @@ async def login(
         "pin_codes": credentials["pin_codes"],
     }
 
-    return login_ok_envelope(login_ok)
+    return login_ok
