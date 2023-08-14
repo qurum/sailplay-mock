@@ -6,7 +6,7 @@ from app.database import User
 from app.serializers.mock_user_serializers import (
     user_envelope,
     user_info_envelope,
-    user_subscriptions_envelope,
+    user_subscriptions_envelope, user_unsubscriptions_envelope,
 )
 
 router = APIRouter()
@@ -126,6 +126,29 @@ async def user_subscribe(
     result["subscribed"] = subscribe_list
 
     return user_subscriptions_envelope(result)
+
+
+@router.get("/unsubscribe")
+async def user_subscribe(
+    user_creds: Annotated[dict, Depends(user_creds_parameters)],
+    auth: Annotated[dict, Depends(token_parameters)],
+    unsubscribe_list: Annotated[str, Query()] = "",
+):
+    error, result = get_user(user_creds, auth)
+    if error:
+        return result
+    user = result
+    unsubscribe_list = unsubscribe_list.split(",")
+    User.find_one_and_update(
+        {"_id": user["_id"]},
+        {"$pull": {"subscriptions": {"$in": unsubscribe_list}}},
+    )
+
+    result = {}
+    result.update(user_creds)
+    result["unsubscribed"] = unsubscribe_list
+
+    return user_unsubscriptions_envelope(result)
 
 
 def check_user_creds(user_creds):

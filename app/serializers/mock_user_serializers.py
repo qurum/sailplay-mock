@@ -64,3 +64,15 @@ def user_subscriptions_envelope(subscriptions_dict) -> dict:
         },
         "subscribed": subscriptions_dict.get("subscribed", []),
     }
+
+
+def user_unsubscriptions_envelope(subscriptions_dict) -> dict:
+    return {
+        "status": "ok",
+        "user": {
+            "origin_user_id": subscriptions_dict.get("origin_user_id", ""),
+            "phone": subscriptions_dict.get("user_phone", ""),
+            "email": subscriptions_dict.get("email", ""),
+        },
+        "unsubscribed": subscriptions_dict.get("unsubscribed", []),
+    }
