@@ -23,7 +23,7 @@ def history_envelope(token_dict) -> dict:
 
 
 def user_info_envelope(user_info_dict) -> dict:
-    return {
+    result = {
         "category": user_info_dict.get("category", ""),
         "status": "ok",
         "origin_user_id": user_info_dict.get("origin_user_id", ""),
@@ -41,6 +41,26 @@ def user_info_envelope(user_info_dict) -> dict:
         "media_url": "",
         "available_gifts": user_info_dict.get("available_gifts", ""),
         "over_user_points_gifts": user_info_dict.get("over_user_points_gifts", ""),
-        "history": [history_envelope(hr) for hr in user_info_dict.get("history", "")],
-        "subscriptions": [],
+    }
+
+    if user_info_dict.get("history", None):
+        result["history"] = [
+            history_envelope(hr) for hr in user_info_dict.get("history", "")
+        ]
+
+    if user_info_dict.get("subscriptions", None):
+        result["subscriptions"] = user_info_dict.get("subscriptions")
+
+    return result
+
+
+def user_subscriptions_envelope(subscriptions_dict) -> dict:
+    return {
+        "status": "ok",
+        "user": {
+            "origin_user_id": subscriptions_dict.get("origin_user_id", ""),
+            "phone": subscriptions_dict.get("user_phone", ""),
+            "email": subscriptions_dict.get("email", ""),
+        },
+        "subscribed": subscriptions_dict.get("subscribed", []),
     }

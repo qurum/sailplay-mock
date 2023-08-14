@@ -3,7 +3,11 @@ from typing import Annotated
 from fastapi import APIRouter, Query, Depends
 
 from app.database import User
-from app.serializers.mock_user_serializers import user_envelope, user_info_envelope
+from app.serializers.mock_user_serializers import (
+    user_envelope,
+    user_info_envelope,
+    user_subscriptions_envelope,
+)
 
 router = APIRouter()
 
@@ -58,7 +62,7 @@ async def add(
         if error:
             return message
 
-    users = find_user(
+    users = find_users(
         store_department_id=auth["store_department_id"],
         user_phone=user_creds["user_phone"],
         email=user_creds["email"],
@@ -87,21 +91,10 @@ async def info(
     history: Annotated[int, Query()] = 0,
     subscriptions: Annotated[int, Query()] = 0,
 ):
-    for error, message in [check_user_creds(user_creds), check_token(auth)]:
-        if error:
-            return message
-
-    users = find_user(
-        store_department_id=auth["store_department_id"],
-        user_phone=user_creds["user_phone"],
-        email=user_creds["email"],
-        origin_user_id=user_creds["origin_user_id"],
-    )
-
-    if len(users) == 0:
-        return {"status": "error", "message": "User does not exist."}
-
-    user = dict(users[0])
+    error, result = get_user(user_creds, auth)
+    if error:
+        return result
+    user = result
 
     if history != 1:
         user.pop("history", None)
@@ -110,6 +103,29 @@ async def info(
         user.pop("subscriptions", None)
 
     return user_info_envelope(user)
+
+
+@router.get("/subscribe")
+async def user_subscribe(
+    user_creds: Annotated[dict, Depends(user_creds_parameters)],
+    auth: Annotated[dict, Depends(token_parameters)],
+    subscribe_list: Annotated[str, Query()] = "",
+):
+    error, result = get_user(user_creds, auth)
+    if error:
+        return result
+    user = result
+    subscribe_list = subscribe_list.split(",")
+    User.find_one_and_update(
+        {"_id": user["_id"]},
+        {"$addToSet": {"subscriptions": {"$each": subscribe_list}}},
+    )
+
+    result = {}
+    result.update(user_creds)
+    result["subscribed"] = subscribe_list
+
+    return user_subscriptions_envelope(result)
 
 
 def check_user_creds(user_creds):
@@ -149,7 +165,27 @@ def check_token(token_params):
     return False, ""
 
 
-def find_user(
+def get_user(user_creds, auth):
+    for error, message in [check_user_creds(user_creds), check_token(auth)]:
+        if error:
+            return (True, message)
+
+    users = find_users(
+        store_department_id=auth["store_department_id"],
+        user_phone=user_creds["user_phone"],
+        email=user_creds["email"],
+        origin_user_id=user_creds["origin_user_id"],
+    )
+
+    if len(users) == 0:
+        return (True, {"status": "error", "message": "User does not exist."})
+
+    user = dict(users[0])
+
+    return False, user
+
+
+def find_users(
     store_department_id,
     user_phone=None,
     email=None,
