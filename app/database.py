@@ -16,3 +16,5 @@ Credentials.create_index(
     ],
     unique=True,
 )
+
+User = db.mock_users
