@@ -1,6 +1,10 @@
 from datetime import datetime
 
+from typing import Dict, List
+
 from app.schemas.base_schema import BaseSchema
+from app.schemas.gift import Gift
+from app.schemas.history_record import HistoryRecord
 
 
 class User(BaseSchema):
@@ -17,3 +21,7 @@ class User(BaseSchema):
     sex: str | None
     created_at: datetime | None = None
     updated_at: datetime | None = None
+    points: Dict[str, int] | None = None
+    available_gifts: List[Gift] | None = None
+    over_user_points_gifts: List[Gift] | None = None
+    history: List[HistoryRecord] | None = None

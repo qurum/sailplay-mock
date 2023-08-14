@@ -1,12 +1,46 @@
-def user_envelope(token_dict) -> dict:
+def user_envelope(user_dict) -> dict:
     return {
         "status": "ok",
-        "phone": token_dict["user_phone"],
-        "first_name": token_dict["first_name"],
-        "last_name": token_dict["last_name"],
-        "middle_name": token_dict["middle_name"],
-        "birth_date": token_dict["birth_date"],
-        "origin_user_id": token_dict["origin_user_id"],
-        "id": str(token_dict["_id"]),
-        "sex": token_dict["sex"],
+        "phone": user_dict.get("user_phone", ""),
+        "first_name": user_dict.get("first_name", ""),
+        "last_name": user_dict.get("last_name", ""),
+        "middle_name": user_dict.get("middle_name", ""),
+        "birth_date": user_dict.get("birth_date", ""),
+        "origin_user_id": user_dict.get("origin_user_id", ""),
+        "id": str(user_dict.get("_id")),
+        "sex": user_dict.get("sex", ""),
+    }
+
+
+def history_envelope(token_dict) -> dict:
+    return {
+        "action": token_dict.get("action", ""),
+        "action_date": token_dict.get("action_date", ""),
+        "is_completed": token_dict.get("is_completed", ""),
+        "points_delta": token_dict.get("points_delta", ""),
+        "name": token_dict.get("name", ""),
+    }
+
+
+def user_info_envelope(user_info_dict) -> dict:
+    return {
+        "category": user_info_dict.get("category", ""),
+        "status": "ok",
+        "origin_user_id": user_info_dict.get("origin_user_id", ""),
+        "first_name": user_info_dict.get("first_name", ""),
+        "last_name": user_info_dict.get("last_name", ""),
+        "middle_name": user_info_dict.get("middle_name", ""),
+        "sex": user_info_dict.get("sex", ""),
+        "phone": user_info_dict.get("user_phone", ""),
+        "points": [],
+        "email": user_info_dict.get("email", ""),
+        "birth_date": user_info_dict.get("birth_date", ""),
+        "id": str(user_info_dict.get("_id", "")),
+        "user_points": user_info_dict.get("user_points", ""),
+        "message": "",
+        "media_url": "",
+        "available_gifts": user_info_dict.get("available_gifts", ""),
+        "over_user_points_gifts": user_info_dict.get("over_user_points_gifts", ""),
+        "history": [history_envelope(hr) for hr in user_info_dict.get("history", "")],
+        "subscriptions": [],
     }
